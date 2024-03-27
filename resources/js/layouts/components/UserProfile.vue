@@ -6,7 +6,7 @@ const ability = useAbility()
 
 // TODO: Get type from backend
 const userData = useCookie('userData')
-
+console.log(userData.value.id)
 const logout = async () => {
 
   // Remove "accessToken" from cookie
@@ -35,7 +35,7 @@ const userProfileList = [
     title: 'Profile',
     to: {
       name: 'apps-user-view-id',
-      params: { id: 21 },
+      params: { id: userData.value.id },
     },
   },
   {

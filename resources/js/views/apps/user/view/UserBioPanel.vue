@@ -6,6 +6,10 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits([
+  'refreshData',
+])
+
 const standardPlan = {
   plan: 'Standard',
   price: 99,
@@ -59,88 +63,23 @@ const resolveUserRoleVariant = role => {
     <VCol cols="12">
       <VCard v-if="props.userData">
         <VCardText class="text-center pt-12">
-          <!-- 👉 Avatar -->
-          <VAvatar
-            rounded
-            :size="100"
-            :color="!props.userData.avatar ? 'primary' : undefined"
-            :variant="!props.userData.avatar ? 'tonal' : undefined"
-          >
-            <VImg
-              v-if="props.userData.avatar"
-              :src="props.userData.avatar"
-            />
-            <span
-              v-else
-              class="text-5xl font-weight-medium"
-            >
-              {{ avatarText(props.userData.fullName) }}
-            </span>
-          </VAvatar>
-
           <!-- 👉 User fullName -->
           <h5 class="text-h5 mt-4">
-            {{ props.userData.fullName }}
+            {{ props.userData.name }}
           </h5>
 
           <!-- 👉 Role chip -->
           <VChip
             label
-            :color="resolveUserRoleVariant(props.userData.role).color"
+            :color="resolveUserRoleVariant(props.userData.type).color"
             size="small"
             class="text-capitalize mt-4"
           >
-            {{ props.userData.role }}
+            {{ props.userData.type }}
           </VChip>
         </VCardText>
 
         <VCardText>
-          <div class="d-flex justify-space-around gap-x-6 gap-y-2 flex-wrap mb-6">
-            <!-- 👉 Done task -->
-            <div class="d-flex align-center me-8">
-              <VAvatar
-                :size="40"
-                rounded
-                color="primary"
-                variant="tonal"
-                class="me-4"
-              >
-                <VIcon
-                  icon="tabler-checkbox"
-                  size="24"
-                />
-              </VAvatar>
-              <div>
-                <h5 class="text-h5">
-                  {{ `${(props.userData.taskDone / 1000).toFixed(2)}k` }}
-                </h5>
-
-                <span class="text-sm">Task Done</span>
-              </div>
-            </div>
-
-            <!-- 👉 Done Project -->
-            <div class="d-flex align-center me-4">
-              <VAvatar
-                :size="38"
-                rounded
-                color="primary"
-                variant="tonal"
-                class="me-4"
-              >
-                <VIcon
-                  icon="tabler-briefcase"
-                  size="24"
-                />
-              </VAvatar>
-              <div>
-                <h5 class="text-h5">
-                  {{ kFormatter(props.userData.projectDone) }}
-                </h5>
-                <span class="text-sm">Project Done</span>
-              </div>
-            </div>
-          </div>
 
           <!-- 👉 Details -->
           <h5 class="text-h5">
@@ -156,12 +95,22 @@ const resolveUserRoleVariant = role => {
                 <h6 class="text-h6">
                   Username:
                   <div class="d-inline-block text-body-1">
-                    {{ props.userData.fullName }}
+                    {{ props.userData.name }}
                   </div>
                 </h6>
               </VListItemTitle>
             </VListItem>
 
+            <VListItem>
+              <VListItemTitle>
+                <span class="text-h6">
+                  Billing Phone:
+                </span>
+                <span class="text-body-1">
+                  {{ props.userData.phone }}
+                </span>
+              </VListItemTitle>
+            </VListItem>
             <VListItem>
               <VListItemTitle>
                 <span class="text-h6">
@@ -178,7 +127,7 @@ const resolveUserRoleVariant = role => {
                 <h6 class="text-h6">
                   Status:
                   <div class="d-inline-block text-body-1 text-capitalize">
-                    {{ props.userData.status }}
+                    {{ props.userData.is_active }}
                   </div>
                 </h6>
               </VListItemTitle>
@@ -189,51 +138,7 @@ const resolveUserRoleVariant = role => {
                 <h6 class="text-h6">
                   Role:
                   <div class="d-inline-block text-capitalize text-body-1">
-                    {{ props.userData.role }}
-                  </div>
-                </h6>
-              </VListItemTitle>
-            </VListItem>
-
-            <VListItem>
-              <VListItemTitle>
-                <h6 class="text-h6">
-                  Tax ID:
-                  <div class="d-inline-block text-body-1">
-                    {{ props.userData.taxId }}
-                  </div>
-                </h6>
-              </VListItemTitle>
-            </VListItem>
-
-            <VListItem>
-              <VListItemTitle>
-                <h6 class="text-h6">
-                  Contact:
-                  <div class="d-inline-block text-body-1">
-                    {{ props.userData.contact }}
-                  </div>
-                </h6>
-              </VListItemTitle>
-            </VListItem>
-
-            <VListItem>
-              <VListItemTitle>
-                <h6 class="text-h6">
-                  Language:
-                  <div class="d-inline-block text-body-1">
-                    {{ props.userData.language }}
-                  </div>
-                </h6>
-              </VListItemTitle>
-            </VListItem>
-
-            <VListItem>
-              <VListItemTitle>
-                <h6 class="text-h6">
-                  Country:
-                  <div class="d-inline-block text-body-1">
-                    {{ props.userData.country }}
+                    {{ props.userData.type }}
                   </div>
                 </h6>
               </VListItemTitle>
@@ -250,110 +155,19 @@ const resolveUserRoleVariant = role => {
             Edit
           </VBtn>
 
-          <VBtn
-            variant="tonal"
-            color="error"
-          >
-            Suspend
-          </VBtn>
         </VCardText>
       </VCard>
     </VCol>
     <!-- !SECTION -->
 
-    <!-- SECTION Current Plan -->
-    <VCol cols="12">
-      <VCard>
-        <VCardText class="d-flex">
-          <!-- 👉 Standard Chip -->
-          <VChip
-            label
-            color="primary"
-            size="small"
-            class="font-weight-medium"
-          >
-            Popular
-          </VChip>
-
-          <VSpacer />
-
-          <!-- 👉 Current Price  -->
-          <div class="d-flex align-center">
-            <sup class="text-h5 text-primary mt-1">$</sup>
-            <h1 class="text-h1 text-primary">
-              99
-            </h1>
-            <sub class="mt-3"><h6 class="text-h6 font-weight-regular mb-n1">/ month</h6></sub>
-          </div>
-        </VCardText>
-
-        <VCardText>
-          <!-- 👉 Price Benefits -->
-          <VList class="card-list">
-            <VListItem
-              v-for="benefit in standardPlan.benefits"
-              :key="benefit"
-            >
-              <div class="d-flex align-center gap-x-2">
-                <VIcon
-                  size="10"
-                  color="secondary"
-                  icon="tabler-circle-filled"
-                />
-                <div class="text-medium-emphasis">
-                  {{ benefit }}
-                </div>
-              </div>
-            </VListItem>
-          </VList>
-
-          <!-- 👉 Days -->
-          <div class="my-6">
-            <div class="d-flex justify-space-between mb-1">
-              <h6 class="text-h6">
-                Days
-              </h6>
-              <h6 class="text-h6">
-                26 of 30 Days
-              </h6>
-            </div>
-
-            <!-- 👉 Progress -->
-            <VProgressLinear
-              rounded
-              rounded-bar
-              :model-value="65"
-              color="primary"
-            />
-
-            <p class="mt-1">
-              4 days remaining
-            </p>
-          </div>
-
-          <!-- 👉 Upgrade Plan -->
-          <div class="d-flex gap-4">
-            <VBtn
-              block
-              @click="isUpgradePlanDialogVisible = true"
-            >
-              Upgrade Plan
-            </VBtn>
-          </div>
-        </VCardText>
-      </VCard>
-    </VCol>
-    <!-- !SECTION -->
   </VRow>
 
   <!-- 👉 Edit user info dialog -->
   <UserInfoEditDialog
     v-model:isDialogVisible="isUserInfoEditDialogVisible"
     :user-data="props.userData"
+    @refreshData="value=> emit('refreshData', value)"
   />
-
-  <!-- 👉 Upgrade plan dialog -->
-  <UserUpgradePlanDialog v-model:isDialogVisible="isUpgradePlanDialogVisible" />
 </template>
 
 <style lang="scss" scoped>

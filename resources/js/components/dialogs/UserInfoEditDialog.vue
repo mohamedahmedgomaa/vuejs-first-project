@@ -5,22 +5,11 @@ const props = defineProps({
     required: false,
     default: () => ({
       id: 0,
-      fullName: '',
-      firstName: '',
-      lastName: '',
-      company: '',
-      role: '',
-      username: '',
-      country: '',
-      contact: '',
+      name: '',
+      type: '',
       email: '',
-      currentPlan: '',
-      status: '',
-      avatar: '',
-      taskDone: null,
-      projectDone: null,
-      taxId: '',
-      language: '',
+      phone: '',
+      is_active: '',
     }),
   },
   isDialogVisible: {
@@ -30,9 +19,50 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'submit',
+  'refreshData',
   'update:isDialogVisible',
 ])
+
+const type = ref('')
+const name = ref('')
+const phone = ref('')
+const email = ref('')
+const is_active = ref('')
+
+const errors = ref({
+  name: undefined,
+  type: undefined,
+  phone: undefined,
+  email: undefined,
+  is_active: undefined,
+})
+
+const refVForm = ref()
+
+const updateUser = async () => {
+  try {
+    const res = await $api(`/users/crud/${ userData.value.id }`, {
+      method: 'PATCH',
+      body: {
+        name: name.value,
+        type: type.value,
+        email: email.value,
+        phone: phone.value,
+        is_active: is_active.value,
+      },
+      onResponseError({ response }) {
+        errors.value = response._data.errors
+      },
+    })
+
+    emit('refreshData', res);
+    // await nextTick(() => {
+    //   router.replace(route.query.to ? String(route.query.to) : '/')
+    // })
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 const userData = ref(structuredClone(toRaw(props.userData)))
 const isUseAsBillingAddress = ref(false)
@@ -41,9 +71,26 @@ watch(props, () => {
   userData.value = structuredClone(toRaw(props.userData))
 })
 
+const fetchUser = () => {
+  if(userData.value !== null){
+    type.value = userData.value.type
+    name.value = userData.value.name
+    phone.value =  userData.value.phone
+    email.value =  userData.value.email
+    is_active.value =  userData.value.is_active
+  }
+}
+
+onMounted(fetchUser)
+
 const onFormSubmit = () => {
   emit('update:isDialogVisible', false)
   emit('submit', userData.value)
+
+  refVForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      updateUser()
+  })
 }
 
 const onFormReset = () => {
@@ -77,6 +124,7 @@ const dialogModelValueUpdate = val => {
 
         <!-- 👉 Form -->
         <VForm
+          ref="refVForm"
           class="mt-6"
           @submit.prevent="onFormSubmit"
         >
@@ -85,32 +133,12 @@ const dialogModelValueUpdate = val => {
             <VCol
               cols="12"
               md="6"
-            >
+            >{{name}}
               <AppTextField
-                v-model="userData.firstName"
-                label="First Name"
+                v-model="name"
+                label="Name"
+                :rules="[requiredValidator]"
                 placeholder="John"
-              />
-            </VCol>
-
-            <!-- 👉 Last Name -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <AppTextField
-                v-model="userData.lastName"
-                label="Last Name"
-                placeholder="Doe"
-              />
-            </VCol>
-
-            <!-- 👉 Username -->
-            <VCol cols="12">
-              <AppTextField
-                v-model="userData.username"
-                label="Username"
-                placeholder="john.doe.007"
               />
             </VCol>
 
@@ -120,9 +148,24 @@ const dialogModelValueUpdate = val => {
               md="6"
             >
               <AppTextField
-                v-model="userData.email"
+                v-model="email"
                 label="Email"
+                type="email"
+                :rules="[requiredValidator, emailValidator]"
                 placeholder="johndoe@email.com"
+              />
+            </VCol>
+
+            <!-- 👉 Billing Phone -->
+            <VCol
+              cols="12"
+              md="6"
+            >
+              <AppTextField
+                v-model="phone"
+                label="Phone"
+                :rules="[requiredValidator]"
+                placeholder="590000000"
               />
             </VCol>
 
@@ -132,72 +175,29 @@ const dialogModelValueUpdate = val => {
               md="6"
             >
               <AppSelect
-                v-model="userData.status"
-                label="Status"
+                v-model="is_active"
+                label="is_active"
                 placeholder="Active"
-                :items="['Active', 'Inactive', 'Pending']"
+                :items="[
+                  { title: $t('Active'), value: true },
+                  { title: $t('Inactive'), value: false },
+                ]"
               />
             </VCol>
 
-            <!-- 👉 Tax Id -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <AppTextField
-                v-model="userData.taxId"
-                label="Tax ID"
-                placeholder="123456789"
-              />
-            </VCol>
-
-            <!-- 👉 Contact -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <AppTextField
-                v-model="userData.contact"
-                label="Phone Number"
-                placeholder="+1 9876543210"
-              />
-            </VCol>
-
-            <!-- 👉 Language -->
+            <!-- 👉 type -->
             <VCol
               cols="12"
               md="6"
             >
               <AppSelect
-                v-model="userData.language"
-                closable-chips
-                chips
-                multiple
-                label="Language"
-                placeholder="English"
-                :items="['English', 'Spanish', 'French']"
-              />
-            </VCol>
-
-            <!-- 👉 Country -->
-            <VCol
-              cols="12"
-              md="6"
-            >
-              <AppSelect
-                v-model="userData.country"
-                label="Country"
-                placeholder="United States"
-                :items="['United States', 'United Kingdom', 'France']"
-              />
-            </VCol>
-
-            <!-- 👉 Switch -->
-            <VCol cols="12">
-              <VSwitch
-                v-model="isUseAsBillingAddress"
-                density="compact"
-                label="Use as a billing address?"
+                v-model="type"
+                label="type"
+                placeholder="admin"
+                :items="[
+                  { title: $t('admin'), value: 'admin' },
+                  { title: $t('user'), value: 'user' },
+                ]"
               />
             </VCol>
 

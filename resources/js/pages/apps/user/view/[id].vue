@@ -31,14 +31,14 @@ const tabs = [
     title: 'Connections',
   },
 ]
-
-const { data: userData } = await useApi(`/apps/users/${ route.params.id }`)
-if (userData.value) {
-  const [firstName, lastName] = userData.value.fullName.split(' ')
-
-  userData.value.firstName = firstName
-  userData.value.lastName = lastName
+const userData = ref();
+const load = async () => {
+  const { data: userDataS } = await useApi(`/users/crud/${ route.params.id }`)
+  if (userDataS.value) {
+    userData.value = userDataS.value.data;
+  }
 }
+load()
 </script>
 
 <template>
@@ -48,7 +48,7 @@ if (userData.value) {
       md="5"
       lg="4"
     >
-      <UserBioPanel :user-data="userData" />
+      <UserBioPanel :user-data="userData" @refreshData="load()" />
     </VCol>
 
     <VCol
@@ -78,25 +78,25 @@ if (userData.value) {
         class="mt-6 disable-tab-transition"
         :touch="false"
       >
-        <VWindowItem>
-          <UserTabAccount />
-        </VWindowItem>
+<!--        <VWindowItem>-->
+<!--          <UserTabAccount />-->
+<!--        </VWindowItem>-->
 
-        <VWindowItem>
-          <UserTabSecurity />
-        </VWindowItem>
+<!--        <VWindowItem>-->
+<!--          <UserTabSecurity />-->
+<!--        </VWindowItem>-->
 
-        <VWindowItem>
-          <UserTabBillingsPlans />
-        </VWindowItem>
+<!--        <VWindowItem>-->
+<!--          <UserTabBillingsPlans />-->
+<!--        </VWindowItem>-->
 
-        <VWindowItem>
-          <UserTabNotifications />
-        </VWindowItem>
+<!--        <VWindowItem>-->
+<!--          <UserTabNotifications />-->
+<!--        </VWindowItem>-->
 
-        <VWindowItem>
-          <UserTabConnections />
-        </VWindowItem>
+<!--        <VWindowItem>-->
+<!--          <UserTabConnections />-->
+<!--        </VWindowItem>-->
       </VWindow>
     </VCol>
   </VRow>

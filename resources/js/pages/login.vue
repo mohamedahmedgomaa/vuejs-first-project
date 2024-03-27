@@ -35,8 +35,8 @@ const errors = ref({
 const refVForm = ref()
 
 const credentials = ref({
-  email: 'admin@demo.com',
-  password: 'admin',
+  email: 'admin@test.com',
+  password: 'password',
 })
 
 const rememberMe = ref(false)
@@ -53,13 +53,20 @@ const login = async () => {
         errors.value = response._data.errors
       },
     })
-
-    const { accessToken, userData, userAbilityRules } = res
-
-    useCookie('userAbilityRules').value = userAbilityRules
-    ability.update(userAbilityRules)
+// console.log(res.data.user);
+    const {user} = res.data
+    const userData = {
+      "id": user.id,
+      "fullName": user.name,
+      "username": user.phone,
+      "avatar": user.img_url,
+      "email": user.email,
+      "role": user.type,
+    }
+    useCookie('userAbilityRules').value = user.roles.ability
+    ability.update(user.roles.ability)
     useCookie('userData').value = userData
-    useCookie('accessToken').value = accessToken
+    useCookie('accessToken').value = user.token.access_token
     await nextTick(() => {
       router.replace(route.query.to ? String(route.query.to) : '/')
     })
