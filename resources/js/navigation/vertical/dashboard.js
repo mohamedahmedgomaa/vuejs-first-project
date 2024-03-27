@@ -1,11 +1,11 @@
 export default [
-    {
-        title: 'Dashboards',
-        icon: {icon: 'tabler-smart-home'},
-        to: 'dashboards-analytics',
-        badgeContent: '5',
-        badgeClass: 'bg-error',
-    },
+  {
+    title: 'Dashboards',
+    icon: { icon: 'tabler-smart-home' },
+    to: 'dashboards-analytics',
+    badgeContent: '5',
+    badgeClass: 'bg-error',
+  },
 ]
 
 
