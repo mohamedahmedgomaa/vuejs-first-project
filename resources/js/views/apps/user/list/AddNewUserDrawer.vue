@@ -15,15 +15,22 @@ const emit = defineEmits([
 
 const isFormValid = ref(false)
 const refForm = ref()
-const fullName = ref('')
-const userName = ref('')
+const name = ref('')
+const phone = ref('')
 const email = ref('')
-const company = ref('')
-const country = ref()
-const contact = ref('')
-const role = ref()
-const plan = ref()
-const status = ref()
+const password = ref('')
+const type = ref()
+const isActive = ref()
+
+
+const errors = ref({
+  email: undefined,
+  password: undefined,
+  name: undefined,
+  type: undefined,
+  phone: undefined,
+  isActive: undefined,
+})
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -35,23 +42,36 @@ const closeNavigationDrawer = () => {
 }
 
 const onSubmit = () => {
-  refForm.value?.validate().then(({ valid }) => {
+  refForm.value?.validate().then(async ({ valid }) => {
     if (valid) {
-      emit('userData', {
-        id: 0,
-        fullName: fullName.value,
-        company: company.value,
-        role: role.value,
-        country: country.value,
-        contact: contact.value,
-        email: email.value,
-        currentPlan: plan.value,
-        status: status.value,
-        avatar: '',
-        billing: 'Auto Debit',
+      const res = await $api('/users/crud', {
+        method: 'POST',
+        body: {
+          name: name.value,
+          type: type.value,
+          email: email.value,
+          password: password.value,
+          phone: phone.value,
+          "is_active": isActive.value,
+        },
+        onResponseError({ response }) {
+          errors.value = response._data.errors
+        },
       })
-      emit('update:isDrawerOpen', false)
-      nextTick(() => {
+
+      console.log(errors.value)
+      await nextTick(() => {
+        emit('userData', {
+          id: 0,
+          name: name.value,
+          type: type.value,
+          email: email.value,
+          password: password.value,
+          phone: phone.value,
+          isActive: isActive.value,
+        })
+
+        emit('update:isDrawerOpen', false)
         refForm.value?.reset()
         refForm.value?.resetValidation()
       })
@@ -94,20 +114,11 @@ const handleDrawerModelValueUpdate = val => {
               <!-- 👉 Full name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="fullName"
+                  v-model="name"
                   :rules="[requiredValidator]"
-                  label="Full Name"
-                  placeholder="John Doe"
-                />
-              </VCol>
-
-              <!-- 👉 Username -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="userName"
-                  :rules="[requiredValidator]"
-                  label="Username"
-                  placeholder="Johndoe"
+                  label="Name"
+                  placeholder="Name"
+                  :error-messages="errors.name"
                 />
               </VCol>
 
@@ -118,71 +129,52 @@ const handleDrawerModelValueUpdate = val => {
                   :rules="[requiredValidator, emailValidator]"
                   label="Email"
                   placeholder="johndoe@email.com"
+                  :error-messages="errors.email"
                 />
               </VCol>
 
-              <!-- 👉 company -->
+              <!-- 👉 Password -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="company"
+                  v-model="password"
+                  type="password"
                   :rules="[requiredValidator]"
-                  label="Company"
-                  placeholder="PixInvent"
+                  label="Password"
+                  placeholder="password"
+                  :error-messages="errors.password"
                 />
               </VCol>
 
-              <!-- 👉 Country -->
-              <VCol cols="12">
-                <AppSelect
-                  v-model="country"
-                  label="Select Country"
-                  placeholder="Select Country"
-                  :rules="[requiredValidator]"
-                  :items="['USA', 'UK', 'India', 'Australia']"
-                />
-              </VCol>
-
-              <!-- 👉 Contact -->
+              <!-- 👉 Phone -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="contact"
-                  type="number"
+                  v-model="phone"
                   :rules="[requiredValidator]"
-                  label="Contact"
-                  placeholder="+1-541-754-3010"
+                  label="Phone"
+                  placeholder="Phone"
+                  :error-messages="errors.phone"
                 />
               </VCol>
 
               <!-- 👉 Role -->
               <VCol cols="12">
                 <AppSelect
-                  v-model="role"
-                  label="Select Role"
+                  v-model="type"
+                  label="Select Type"
                   placeholder="Select Role"
                   :rules="[requiredValidator]"
-                  :items="['Admin', 'Author', 'Editor', 'Maintainer', 'Subscriber']"
-                />
-              </VCol>
-
-              <!-- 👉 Plan -->
-              <VCol cols="12">
-                <AppSelect
-                  v-model="plan"
-                  label="Select Plan"
-                  placeholder="Select Plan"
-                  :rules="[requiredValidator]"
-                  :items="['Basic', 'Company', 'Enterprise', 'Team']"
+                  :items="[{ title: 'Admin', value: 'admin' }, { title: 'User', value: 'user' }]"
+                  :error-messages="errors.type"
                 />
               </VCol>
 
               <!-- 👉 Status -->
               <VCol cols="12">
                 <AppSelect
-                  v-model="status"
+                  v-model="isActive"
                   label="Select Status"
                   placeholder="Select Status"
-                  :rules="[requiredValidator]"
-                  :items="[{ title: 'Active', value: 'active' }, { title: 'Inactive', value: 'inactive' }, { title: 'Pending', value: 'pending' }]"
+                  :items="[{ title: 'Active', value: true }, { title: 'Inactive', value: false }]"
                 />
               </VCol>
 

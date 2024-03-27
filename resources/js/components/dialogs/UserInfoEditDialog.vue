@@ -9,7 +9,7 @@ const props = defineProps({
       type: '',
       email: '',
       phone: '',
-      is_active: '',
+      isActive: '',
     }),
   },
   isDialogVisible: {
@@ -27,14 +27,14 @@ const type = ref('')
 const name = ref('')
 const phone = ref('')
 const email = ref('')
-const is_active = ref('')
+const isActive = ref('')
 
 const errors = ref({
   name: undefined,
   type: undefined,
   phone: undefined,
   email: undefined,
-  is_active: undefined,
+  isActive: undefined,
 })
 
 const refVForm = ref()
@@ -48,14 +48,15 @@ const updateUser = async () => {
         type: type.value,
         email: email.value,
         phone: phone.value,
-        is_active: is_active.value,
+        "is_active": isActive.value,
       },
       onResponseError({ response }) {
         errors.value = response._data.errors
       },
     })
 
-    emit('refreshData', res);
+    emit('refreshData', res)
+
     // await nextTick(() => {
     //   router.replace(route.query.to ? String(route.query.to) : '/')
     // })
@@ -77,7 +78,7 @@ const fetchUser = () => {
     name.value = userData.value.name
     phone.value =  userData.value.phone
     email.value =  userData.value.email
-    is_active.value =  userData.value.is_active
+    isActive.value =  userData.value.is_active
   }
 }
 
@@ -85,7 +86,7 @@ onMounted(fetchUser)
 
 const onFormSubmit = () => {
   emit('update:isDialogVisible', false)
-  emit('submit', userData.value)
+  emit('refreshData', userData.value)
 
   refVForm.value?.validate().then(({ valid: isValid }) => {
     if (isValid)
@@ -133,7 +134,7 @@ const dialogModelValueUpdate = val => {
             <VCol
               cols="12"
               md="6"
-            >{{name}}
+            >
               <AppTextField
                 v-model="name"
                 label="Name"
@@ -175,8 +176,8 @@ const dialogModelValueUpdate = val => {
               md="6"
             >
               <AppSelect
-                v-model="is_active"
-                label="is_active"
+                v-model="isActive"
+                label="isActive"
                 placeholder="Active"
                 :items="[
                   { title: $t('Active'), value: true },

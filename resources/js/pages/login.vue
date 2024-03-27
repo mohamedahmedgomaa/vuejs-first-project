@@ -53,8 +53,11 @@ const login = async () => {
         errors.value = response._data.errors
       },
     })
-// console.log(res.data.user);
-    const {user} = res.data
+
+
+    // console.log(res.data.user);
+    const { user } = res.data
+
     const userData = {
       "id": user.id,
       "fullName": user.name,
@@ -63,6 +66,7 @@ const login = async () => {
       "email": user.email,
       "role": user.type,
     }
+
     useCookie('userAbilityRules').value = user.roles.ability
     ability.update(user.roles.ability)
     useCookie('userData').value = userData

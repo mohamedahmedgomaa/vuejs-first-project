@@ -25,16 +25,12 @@ const headers = [
     key: 'user',
   },
   {
-    title: 'Role',
-    key: 'role',
+    title: 'Phone',
+    key: 'phone',
   },
   {
-    title: 'Plan',
-    key: 'plan',
-  },
-  {
-    title: 'Billing',
-    key: 'billing',
+    title: 'Type',
+    key: 'type',
   },
   {
     title: 'Status',
@@ -50,9 +46,9 @@ const headers = [
 const {
   data: usersData,
   execute: fetchUsers,
-} = await useApi(createUrl('/apps/users', {
+} = await useApi(createUrl('/users/crud', {
   query: {
-    q: searchQuery,
+    search: searchQuery,
     status: selectedStatus,
     plan: selectedPlan,
     role: selectedRole,
@@ -63,8 +59,8 @@ const {
   },
 }))
 
-const users = computed(() => usersData.value.users)
-const totalUsers = computed(() => usersData.value.totalUsers)
+const users = computed(() => usersData.value.data)
+const totalUsers = computed(() => usersData.value.data.length)
 
 // 👉 search filters
 const roles = [
@@ -159,13 +155,10 @@ const resolveUserRoleVariant = role => {
 }
 
 const resolveUserStatusVariant = stat => {
-  const statLowerCase = stat.toLowerCase()
-  if (statLowerCase === 'pending')
-    return 'warning'
-  if (statLowerCase === 'active')
+  if (stat === true)
     return 'success'
-  if (statLowerCase === 'inactive')
-    return 'secondary'
+  if (stat === false)
+    return 'error'
   
   return 'primary'
 }
@@ -173,7 +166,7 @@ const resolveUserStatusVariant = stat => {
 const isAddNewUserDrawerVisible = ref(false)
 
 const addNewUser = async userData => {
-  await $api('/apps/users', {
+  await $api('/users/crud', {
     method: 'POST',
     body: userData,
   })
@@ -183,7 +176,7 @@ const addNewUser = async userData => {
 }
 
 const deleteUser = async id => {
-  await $api(`/apps/users/${ id }`, { method: 'DELETE' })
+  await $api(`/users/crud/${ id }`, { method: 'DELETE' })
 
   // refetch User
   fetchUsers()
@@ -392,24 +385,13 @@ const widgetData = ref([
         <!-- User -->
         <template #item.user="{ item }">
           <div class="d-flex align-center gap-x-4">
-            <VAvatar
-              size="34"
-              :variant="!item.avatar ? 'tonal' : undefined"
-              :color="!item.avatar ? resolveUserRoleVariant(item.role).color : undefined"
-            >
-              <VImg
-                v-if="item.avatar"
-                :src="item.avatar"
-              />
-              <span v-else>{{ avatarText(item.fullName) }}</span>
-            </VAvatar>
             <div class="d-flex flex-column">
               <h6 class="text-base">
                 <RouterLink
                   :to="{ name: 'apps-user-view-id', params: { id: item.id } }"
                   class="font-weight-medium text-link"
                 >
-                  {{ item.fullName }}
+                  {{ item.name }}
                 </RouterLink>
               </h6>
               <div class="text-sm">
@@ -420,16 +402,25 @@ const widgetData = ref([
         </template>
 
         <!-- 👉 Role -->
-        <template #item.role="{ item }">
+        <template #item.type="{ item }">
           <div class="d-flex align-center gap-x-2">
             <VIcon
               :size="22"
-              :icon="resolveUserRoleVariant(item.role).icon"
-              :color="resolveUserRoleVariant(item.role).color"
+              :icon="resolveUserRoleVariant(item.type).icon"
+              :color="resolveUserRoleVariant(item.type).color"
             />
 
             <div class="text-capitalize text-high-emphasis text-body-1">
-              {{ item.role }}
+              {{ item.type }}
+            </div>
+          </div>
+        </template>
+        
+        <!-- 👉 Role -->
+        <template #item.phone="{ item }">
+          <div class="d-flex align-center gap-x-2">
+            <div class="text-capitalize text-high-emphasis">
+              {{ item.phone }}
             </div>
           </div>
         </template>
@@ -444,12 +435,12 @@ const widgetData = ref([
         <!-- Status -->
         <template #item.status="{ item }">
           <VChip
-            :color="resolveUserStatusVariant(item.status)"
+            :color="resolveUserStatusVariant(item.is_active)"
             size="small"
             label
             class="text-capitalize"
           >
-            {{ item.status }}
+            {{ item.is_active? $t("Active") : $t("Inactive") }}
           </VChip>
         </template>
 
@@ -459,7 +450,7 @@ const widgetData = ref([
             <VIcon icon="tabler-trash" />
           </IconBtn>
 
-          <IconBtn>
+          <IconBtn :to="{ name: 'apps-user-view-id', params: { id: item.id } }">
             <VIcon icon="tabler-eye" />
           </IconBtn>
 
@@ -479,12 +470,12 @@ const widgetData = ref([
                   <VListItemTitle>View</VListItemTitle>
                 </VListItem>
 
-                <VListItem link>
-                  <template #prepend>
-                    <VIcon icon="tabler-pencil" />
-                  </template>
-                  <VListItemTitle>Edit</VListItemTitle>
-                </VListItem>
+                <!--                <VListItem link> -->
+                <!--                  <template #prepend> -->
+                <!--                    <VIcon icon="tabler-pencil" /> -->
+                <!--                  </template> -->
+                <!--                  <VListItemTitle>Edit</VListItemTitle> -->
+                <!--                </VListItem> -->
 
                 <VListItem @click="deleteUser(item.id)">
                   <template #prepend>

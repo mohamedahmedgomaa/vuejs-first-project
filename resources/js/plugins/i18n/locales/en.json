@@ -208,5 +208,44 @@
         "item": "item"
       }
     }
-  }
+  },
+  "Users Management": "Users Management",
+  "Customers": "Customers",
+  "Full Name": "Full Name",
+  "Phone Number": "Phone Number",
+  "Add Customer": "Add Customer",
+
+  "middle": "Middle",
+
+  "StudentCv": "Student Cv",
+  "Interns": "Interns",
+  "Majors": "Majors",
+  "Edit Account": "Edit Account",
+  "Male": "Male",
+  "Female": "Female",
+  "High School": "High School",
+  "Diploma": "Diploma",
+  "Bachelors": "Bachelors",
+  "Masters": "Masters",
+  "Doctor": "Doctor",
+  "Junior": "Junior",
+  "Middle": "Middle",
+  "Senior": "Senior",
+  "Waiting": "Waiting",
+  "In Progress": "In Progress",
+  "Finished": "Finished",
+  "Add New": "Add",
+  "Previous": "Previous",
+  "Next": "Next",
+  "Inactive": "In Active",
+
+  "Select Gender": "Select Gender",
+  "Select Education Level": "Select Education Level",
+  "Select Major Level": "Select Major Level",
+  "Select Major Status": "Select Major Status",
+  "Name": "Name",
+  "Gender": "Gender",
+  "Education": "Education",
+  "Major": "Major",
+  "Status": "Status"
 }
